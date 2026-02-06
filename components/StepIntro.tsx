@@ -10,10 +10,10 @@ const StepIntro: React.FC<Props> = ({ onStart }) => {
   return (
     <div className="glass rounded-[40px] p-8 md:p-12 text-center shadow-xl border border-white/40">
       <div className="mb-8 flex justify-center">
-  <img 
-    src="/assets/webora-logo.png" 
-    alt="Webora Logo" 
-    className="h-24 w-auto"
+      <img 
+  src="/webora-logo.png" 
+  alt="Webora Logo" 
+  className="h-24 w-auto"
   />
 </div>
       
