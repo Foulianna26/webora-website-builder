@@ -1,0 +1,7 @@
+{
+  "name": "Onboarding Pro Website Builder",
+  "description": "A lightweight onboarding tool to collect website information from users in Greek, designed for a professional and calm user experience.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
