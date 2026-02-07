@@ -12,16 +12,120 @@
     <style>
         body {
             font-family: 'Open Sans', sans-serif;
-            background-color: #F8F5F2;
+            background-color: #0B0E14;
+            color: #FFFFFF;
         }
         .glass {
-            background: rgba(255, 255, 255, 0.7);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: rgba(15, 18, 25, 0.85);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
         }
-        .bg-gradient-soft {
-            background: radial-gradient(circle at 10% 20%, rgba(255, 120, 0, 0.1) 0%, rgba(255, 255, 255, 0) 50%);
+        .recessed {
+            background: rgba(0, 0, 0, 0.2);
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        .glow-blue {
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+        }
+        .glow-cyan {
+            box-shadow: 0 0 20px rgba(6, 182, 212, 0.5);
+        }
+        
+        /* Animated Gradient Border */
+        .animated-border-container {
+            position: relative;
+            padding: 4px;
+            border-radius: 52px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    
+        .animated-border-bg {
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(
+                from 0deg,
+                transparent 20%,
+                #3b82f6 40%,
+                #a855f7 60%,
+                #3b82f6 80%,
+                transparent 100%
+            );
+            animation: rotate-gradient 12s linear infinite, breathing-pulse 8s ease-in-out infinite;
+            z-index: 0;
+            opacity: 0.8;
+        }
+    
+        @keyframes rotate-gradient {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+    
+        @keyframes breathing-pulse {
+            0%, 100% { 
+                filter: brightness(0.8) saturate(0.8);
+                opacity: 0.6;
+            }
+            50% { 
+                filter: brightness(1.2) saturate(1.2);
+                opacity: 1;
+            }
+        }
+    
+        .animated-border-inner {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            height: 100%;
+            border-radius: 48px;
+            background: #0B0E14;
+        }
+    
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .animate-fadeIn {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+        
+        @keyframes scaleIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        
+        .animate-scaleIn {
+            animation: scaleIn 0.4s ease-out forwards;
+        }
+        
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        
+        .animate-slideInLeft {
+            animation: slideInLeft 0.5s ease-out forwards;
+        }
+        
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.02);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.2);
         }
     </style>
 <script type="importmap">
@@ -33,7 +137,6 @@
   }
 }
 </script>
-<link rel="stylesheet" href="/index.css">
 </head>
 <body class="antialiased text-gray-900 min-h-screen">
     <div id="root"></div>

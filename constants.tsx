@@ -2,36 +2,12 @@
 import React from 'react';
 
 export const MOODS = [
-  { 
-    id: 'calm', 
-    label: 'Γαλήνιο', 
-    image: 'https://images.unsplash.com/photo-1522204538344-922f76eba0a3?auto=format&fit=crop&q=80&w=1000' 
-  },
-  { 
-    id: 'modern', 
-    label: 'Μοντέρνο', 
-    image: 'https://images.unsplash.com/photo-1558655146-d09347e92766?auto=format&fit=crop&q=80&w=1000' 
-  },
-  { 
-    id: 'professional', 
-    label: 'Επαγγελματικό', 
-    image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=1000' 
-  },
-  { 
-    id: 'friendly', 
-    label: 'Φιλικό', 
-    image: 'https://images.unsplash.com/photo-1551434678-e076c223a692?auto=format&fit=crop&q=80&w=1000' 
-  },
-  { 
-    id: 'minimal', 
-    label: 'Μίνιμαλ', 
-    image: 'https://images.unsplash.com/photo-1499951360447-b19be8fe80f5?auto=format&fit=crop&q=80&w=1000' 
-  },
-  { 
-    id: 'dynamic', 
-    label: 'Δυναμικό', 
-    image: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&q=80&w=1000' 
-  },
+  { id: 'calm', label: 'Γαλήνιο', image: '/img/calm.jpg' },
+  { id: 'modern', label: 'Μοντέρνο', image: '/img/modern.jpg' },
+  { id: 'professional', label: 'Επαγγελματικό', image: '/img/professional.jpg' },
+  { id: 'friendly', label: 'Φιλικό', image: '/img/friendly.jpg' },
+  { id: 'minimal', label: 'Μίνιμαλ', image: '/img/minimal.jpg' },
+  { id: 'dynamic', label: 'Δυναμικό', image: '/img/dynamic.jpg' }
 ];
 
 export const PRESENTATION_OPTIONS = [
