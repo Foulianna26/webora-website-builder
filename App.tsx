@@ -21,7 +21,9 @@ const initialData: FormDataState = {
   styleReference: null,
   dontWant: '',
   goal: '',
-  contactMethods: []
+  contactMethods: [],
+  additionalComments: '',  // ΠΡΟΣΘΗΚΗ
+  gdprConsent: false       // ΠΡΟΣΘΗΚΗ
 };
 
 const App: React.FC = () => {
@@ -76,7 +78,7 @@ const App: React.FC = () => {
             {currentAppStep === AppStep.INTRO && <StepIntro onStart={handleStart} />}
             {currentAppStep === AppStep.WIZARD && <Wizard onFinish={handleFinish} initialData={formData} />}
             {currentAppStep === AppStep.SUBMITTING && (
-              <div className="text-center py-20 glass rounded-[48px] p-12">
+              <div className="text-center py-20 glass rounded-[22px] p-12">
                 <div className="inline-block w-16 h-16 border-4 border-cyan-400 border-t-transparent rounded-full animate-spin mb-6 glow-cyan"></div>
                 <h2 className="text-2xl font-semibold text-white">Αποστολή στοιχείων...</h2>
                 <p className="text-gray-400 mt-2">Η σελίδα σας ετοιμάζεται</p>

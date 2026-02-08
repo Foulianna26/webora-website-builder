@@ -38,7 +38,6 @@ const Wizard: React.FC<Props> = ({ initialData, onFinish }) => {
     if (data.logo) count++;
     count += data.photos.length;
     if (data.styleReference) count++;
-    count += data.services.filter(s => s.image).length;
     return count;
   };
 
@@ -57,7 +56,6 @@ const Wizard: React.FC<Props> = ({ initialData, onFinish }) => {
       const file = files[i];
       
       try {
-        // Compress image
         const compressedBase64 = await compressImage(file);
         
         processedFiles.push({
@@ -77,35 +75,6 @@ const Wizard: React.FC<Props> = ({ initialData, onFinish }) => {
     } else {
       updateData({ [field]: processedFiles[0] });
     }
-  };
-
-  const handleServiceImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    if (file.size > 1024 * 1024) {
-      alert('Το αρχείο υπερβαίνει το 1MB.');
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const fileData: FileData = {
-        name: file.name,
-        size: file.size,
-        type: file.type,
-        base64: event.target?.result as string
-      };
-      const newServices = [...data.services];
-      newServices[index] = { ...newServices[index], image: fileData };
-      updateData({ services: newServices });
-    };
-    reader.readAsDataURL(file);
-  };
-
-  const removeServiceImage = (index: number) => {
-    const newServices = [...data.services];
-    newServices[index] = { ...newServices[index], image: null };
-    updateData({ services: newServices });
   };
 
   const toggleMood = (id: string) => {
@@ -154,6 +123,7 @@ const Wizard: React.FC<Props> = ({ initialData, onFinish }) => {
     if (step === 1) return data.name && data.email && validateEmail(data.email) && data.description;
     if (step === 2) return data.presentationType !== '';
     if (step === 5) return data.goal && data.contactMethods.length > 0;
+    if (step === 6) return data.gdprConsent === true;
     return true;
   };
 
@@ -162,12 +132,11 @@ const Wizard: React.FC<Props> = ({ initialData, onFinish }) => {
   const needsPhone = data.contactMethods.includes('Τηλέφωνο') && !data.phone;
   const needsSocials = data.goal === 'Follow στα Social' && data.socialLinks.filter(l => l).length === 0;
 
-  const inputStyles = "w-full px-5 py-4 rounded-2xl bg-black/30 border border-white/10 text-white placeholder-gray-500 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 outline-none transition-all shadow-inner";
+  const inputStyles = "w-full px-5 py-4 rounded-2xl bg-black/30 border border-blue-500/20 text-white placeholder-gray-500 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 outline-none transition-all shadow-inner hover:border-blue-500/40";
   const labelStyles = "block text-sm font-semibold text-gray-400 mb-2 ml-1";
 
   return (
-    <div className="glass rounded-[48px] overflow-hidden flex flex-col min-h-[650px] animate-fadeIn relative z-10">
-      {/* Progress Bar */}
+    <div className="glass rounded-[22px] overflow-hidden flex flex-col min-h-[650px] animate-fadeIn relative z-10">
       <div className="bg-white/5 h-1.5 w-full">
         <div 
           className="bg-gradient-to-r from-blue-500 to-cyan-400 h-full transition-all duration-700 ease-in-out glow-blue"
@@ -243,41 +212,17 @@ const Wizard: React.FC<Props> = ({ initialData, onFinish }) => {
                 <label className={labelStyles}>Λίστα {data.presentationType.toLowerCase()} (έως 8)</label>
                 <div className="space-y-4">
                   {data.services.map((service, index) => (
-                    <div key={index} className="flex flex-col gap-2 p-4 recessed rounded-2xl animate-fadeIn">
-                      <div className="flex gap-2">
-                        <input 
-                          type="text" 
-                          value={service.text} 
-                          onChange={e => updateService(index, e.target.value)}
-                          className={inputStyles}
-                          placeholder={`π.χ. ${data.presentationType === 'Υπηρεσίες' ? 'Σχεδιασμός λογοτύπου' : 'Όνομα έργου'}`}
-                        />
-                        <button onClick={() => removeService(index)} className="p-3 text-gray-400 hover:text-red-500 transition-colors">
-                          <Icons.X />
-                        </button>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <div className="relative">
-                          <input type="file" accept="image/*" className="hidden" id={`service-img-${index}`} onChange={e => handleServiceImageUpload(e, index)} />
-                          <label 
-                            htmlFor={`service-img-${index}`}
-                            className={`flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs cursor-pointer transition-all ${service.image ? 'bg-blue-500/20 border-blue-400 text-blue-300' : 'bg-white/5 border-white/10 text-gray-400 hover:bg-white/10'}`}
-                          >
-                            <Icons.Image />
-                            {service.image ? 'Άλλαξε φωτογραφία' : 'Προσθήκη φωτογραφίας'}
-                          </label>
-                        </div>
-                        {service.image && (
-                          <div className="flex items-center gap-2">
-                            <button onClick={() => setPreviewImage(service.image!.base64)} className="text-[10px] text-blue-400 hover:underline">
-                              Προεπισκόπηση
-                            </button>
-                            <button onClick={() => removeServiceImage(index)} className="text-[10px] text-red-400 hover:underline">
-                              Διαγραφή
-                            </button>
-                          </div>
-                        )}
-                      </div>
+                    <div key={index} className="flex gap-2 p-4 recessed rounded-2xl animate-fadeIn">
+                      <input 
+                        type="text" 
+                        value={service.text} 
+                        onChange={e => updateService(index, e.target.value)}
+                        className={inputStyles}
+                        placeholder={`π.χ. ${data.presentationType === 'Υπηρεσίες' ? 'Σχεδιασμός λογοτύπου' : 'Όνομα έργου'}`}
+                      />
+                      <button onClick={() => removeService(index)} className="p-3 text-gray-400 hover:text-red-500 transition-colors">
+                        <Icons.X />
+                      </button>
                     </div>
                   ))}
                   {data.services.length < 8 && (
@@ -312,7 +257,6 @@ const Wizard: React.FC<Props> = ({ initialData, onFinish }) => {
                   <Icons.Upload />
                   <span className="text-sm text-gray-500 font-medium">{data.photos.length > 0 ? `${data.photos.length} αρχεία` : 'Επιλέξτε αρχεία'}</span>
                 </label>
-                <p className="text-xs text-gray-500">Κάθε αρχείο έως 1MB.</p>
               </div>
             </div>
             
@@ -335,40 +279,53 @@ const Wizard: React.FC<Props> = ({ initialData, onFinish }) => {
           </div>
         )}
 
-{step === 4 && (
-  <div className="space-y-8 animate-fadeIn">
-    <p className="text-gray-400 font-medium">Ποια αίσθηση θέλετε να αποπνέει η σελίδα; (Έως 3 ύφη)</p>
-    <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-      {MOODS.map(mood => (
-        <div 
-          key={mood.id}
-          className={`group relative flex flex-col rounded-[24px] border-2 cursor-pointer transition-all duration-500 overflow-hidden ${data.moods.includes(mood.id) ? 'border-blue-500 scale-105 shadow-xl glow-blue' : 'border-white/5 bg-white/2 hover:border-white/20'}`}
-          onClick={() => toggleMood(mood.id)}
-        >
-          <div className="relative aspect-[3/4] w-full overflow-hidden">
-            <img src={mood.image} alt={mood.label} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-70 group-hover:opacity-100" />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
-            <button 
-              onClick={(e) => { e.stopPropagation(); setPreviewImage(mood.image); }}
-              className="absolute top-2 right-2 bg-black/40 backdrop-blur-sm p-2 rounded-full text-white opacity-0 group-hover:opacity-100 transition-all hover:bg-blue-500 z-10"
-              title="Προεπισκόπηση"
-            >
-              <Icons.Eye />
-            </button>
+        {step === 4 && (
+          <div className="space-y-8 animate-fadeIn">
+            <p className="text-gray-400 font-medium">Ποια αίσθηση θέλετε να αποπνέει η σελίδα; (Επιλέξτε έως 3 στυλ)</p>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+              {MOODS.map(mood => (
+                <div key={mood.id} className="flex flex-col gap-3">
+                  <div 
+                    className={`group relative rounded-[24px] border-2 cursor-pointer transition-all duration-300 overflow-hidden ${data.moods.includes(mood.id) ? 'border-blue-500 shadow-xl glow-blue' : 'border-white/5 hover:border-white/20'}`}
+                    onClick={() => setPreviewImage(mood.image)}
+                  >
+                    <div className="relative aspect-[3/4] w-full">
+                      <img src={mood.image} alt={mood.label} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-80 group-hover:opacity-100" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+                      
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="bg-black/50 backdrop-blur-sm p-3 rounded-full text-white group-hover:bg-blue-500 transition-all">
+                          <Icons.Eye />
+                        </div>
+                      </div>
+
+                      <div 
+                        className="absolute bottom-3 left-3 z-10"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleMood(mood.id);
+                        }}
+                      >
+                        <div className={`w-7 h-7 rounded-lg border-2 flex items-center justify-center cursor-pointer transition-all ${data.moods.includes(mood.id) ? 'bg-blue-500 border-blue-500' : 'bg-black/40 backdrop-blur-sm border-white/30 hover:border-blue-400'}`}>
+                          {data.moods.includes(mood.id) && (
+                            <Icons.Check />
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="text-center">
+                    <span className={`font-bold text-sm ${data.moods.includes(mood.id) ? 'text-blue-400' : 'text-gray-400'}`}>
+                      {mood.label}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
-          <div className="absolute bottom-4 left-4 right-4 flex justify-between items-center">
-            <span className="font-bold text-sm text-white drop-shadow-lg">{mood.label}</span>
-            {data.moods.includes(mood.id) && (
-              <div className="bg-blue-500 rounded-full p-1 shadow-lg">
-                <Icons.Check />
-              </div>
-            )}
-          </div>
-        </div>
-      ))}
-    </div>
-  </div>
-)}
+        )}
+
         {step === 5 && (
           <div className="space-y-8 animate-fadeIn">
             <div>
@@ -428,6 +385,17 @@ const Wizard: React.FC<Props> = ({ initialData, onFinish }) => {
                 </div>
               )}
             </div>
+
+            <div className="pt-6 border-t border-white/10">
+              <label className={labelStyles}>Επιπλέον σχόλια ή πληροφορίες (προαιρετικό)</label>
+              <textarea 
+                rows={4} 
+                value={data.additionalComments || ''} 
+                onChange={e => updateData({ additionalComments: e.target.value })}
+                className={inputStyles}
+                placeholder="π.χ. Ειδικές απαιτήσεις, προτιμήσεις χρωμάτων, κάτι που θέλετε να τονίσετε..."
+              />
+            </div>
           </div>
         )}
 
@@ -445,13 +413,30 @@ const Wizard: React.FC<Props> = ({ initialData, onFinish }) => {
                 <span className="text-gray-500 mb-1">{data.presentationType}:</span>
                 <span className="text-white">
                   {data.services.filter(s => s.text).length > 0 
-                    ? data.services.filter(s => s.text).map(s => `${s.text}${s.image ? ' (🖼️)' : ''}`).join(', ') 
+                    ? data.services.filter(s => s.text).map(s => s.text).join(', ') 
                     : (isSimplePresence ? 'Απλή Παρουσίαση' : 'Κανένα')}
                 </span>
               </div>
               <div className="flex justify-between border-b border-white/5 pb-3"><span className="text-gray-500">Αρχεία:</span> <span className="font-bold">{getTotalFileCount()} / 15</span></div>
               <div className="pt-2"><span className="text-gray-500 block mb-1">Περιγραφή:</span> <p className="text-gray-300 italic">"{data.description}"</p></div>
+              {data.additionalComments && (
+                <div className="pt-2"><span className="text-gray-500 block mb-1">Επιπλέον σχόλια:</span> <p className="text-gray-300 italic">"{data.additionalComments}"</p></div>
+              )}
             </div>
+            
+            <label className="flex items-start gap-3 cursor-pointer group p-4 recessed rounded-2xl border border-white/10 hover:border-blue-500/30 transition-all">
+              <input 
+                type="checkbox" 
+                checked={data.gdprConsent || false}
+                onChange={(e) => updateData({ gdprConsent: e.target.checked })}
+                className="w-5 h-5 mt-0.5 rounded border-white/20 text-blue-500 focus:ring-blue-500 accent-blue-500 bg-black/30"
+              />
+              <span className="text-sm text-gray-300 leading-relaxed">
+                Αποδέχομαι τη χρήση των προσωπικών μου στοιχείων για τη δημιουργία του website μου σύμφωνα με την{' '}
+                <a href="/privacy" target="_blank" className="text-blue-400 hover:underline">Πολιτική Απορρήτου</a>.
+              </span>
+            </label>
+
             <div className="p-4 recessed rounded-2xl text-cyan-400 text-xs border border-cyan-500/20">
               Πατώντας υποβολή, τα στοιχεία σας θα σταλούν στην ομάδα μας.
             </div>

@@ -58,9 +58,13 @@ const ThankYou: React.FC = () => {
   </div>
 </div>
           <h2 className="text-3xl font-bold text-white mb-6">Σχεδόν έτοιμο!</h2>
-          
+          <div className="mb-6 p-4 bg-blue-500/10 border border-blue-500/30 rounded-2xl">
+            <p className="text-sm text-blue-300">
+              Λόγω αυξημένης ζήτησης, η σελίδα σου θα είναι έτοιμη εντός 24 ωρών.
+            </p>
+          </div>
           <div className="recessed p-6 rounded-3xl border border-white/10 mb-6 shadow-md">
-            <p className="text-sm text-blue-300 font-semibold mb-3">⏰ Εκτιμώμενος χρόνος παράδοσης:</p>
+            <p className="text-sm text-blue-300 font-semibold mb-3">Εκτιμώμενος χρόνος παράδοσης:</p>
             <div className="flex justify-center gap-4 mb-4">
               <div className="recessed rounded-2xl p-4 shadow-sm min-w-[80px] border border-white/10">
                 <div className="text-3xl font-bold text-cyan-400">{countdown.hours.toString().padStart(2, '0')}</div>
