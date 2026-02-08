@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { FormDataState, FileData, ServiceItem } from '../types';
 import { Icons, MOODS, PRESENTATION_OPTIONS, GOAL_OPTIONS } from '../constants';
+import { compressImage } from '../imageCompressor';
 
 interface Props {
   initialData: FormDataState;
@@ -50,27 +51,27 @@ const Wizard: React.FC<Props> = ({ initialData, onFinish }) => {
       alert('Μπορείτε να ανεβάσετε έως 15 αρχεία συνολικά.');
       return;
     }
-
+  
     const processedFiles: any[] = [];
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
-      if (file.size > 1024 * 1024) {
-        alert(`Το αρχείο ${file.name} υπερβαίνει το 1MB.`);
-        continue;
-      }
-      const reader = new FileReader();
-      const filePromise = new Promise((resolve) => {
-        reader.onload = (event) => resolve({
+      
+      try {
+        // Compress image
+        const compressedBase64 = await compressImage(file);
+        
+        processedFiles.push({
           name: file.name,
           size: file.size,
           type: file.type,
-          base64: event.target?.result as string
+          base64: compressedBase64
         });
-      });
-      reader.readAsDataURL(file);
-      processedFiles.push(await filePromise);
+      } catch (error) {
+        console.error('Compression error:', error);
+        alert(`Σφάλμα στη σμίκρυνση του ${file.name}`);
+      }
     }
-
+  
     if (field === 'photos') {
       updateData({ photos: [...data.photos, ...processedFiles].slice(0, 10) });
     } else {

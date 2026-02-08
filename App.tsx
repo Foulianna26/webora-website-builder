@@ -4,6 +4,7 @@ import StepIntro from './components/StepIntro';
 import Wizard from './components/Wizard';
 import ThankYou from './components/ThankYou';
 import { sendFormEmail } from './emailService';
+import { canSubmit, recordSubmission } from './rateLimit';
 
 const initialData: FormDataState = {
   honeypot: '',
@@ -32,16 +33,29 @@ const App: React.FC = () => {
   };
 
   const handleFinish = async (data: FormDataState) => {
+    // Honeypot check
     if (data.honeypot) {
       setCurrentAppStep(AppStep.SUBMITTING);
       setTimeout(() => setCurrentAppStep(AppStep.THANK_YOU), 1500);
       return;
     }
-
+  
+    // Rate limit check
+    const { allowed, remainingTime } = canSubmit(data.email);
+    if (!allowed) {
+      alert(`Έχετε ήδη υποβάλει αίτημα. Παρακαλώ περιμένετε ${remainingTime} πριν υποβάλετε ξανά.`);
+      return;
+    }
+  
     setFormData(data);
     setCurrentAppStep(AppStep.SUBMITTING);
-
+  
     const success = await sendFormEmail(data);
+    
+    if (success) {
+      // Καταγραφή επιτυχημένης υποβολής
+      recordSubmission(data.email);
+    }
     
     setTimeout(() => {
       setCurrentAppStep(AppStep.THANK_YOU);
