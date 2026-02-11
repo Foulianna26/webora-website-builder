@@ -10,7 +10,6 @@ export const sendFormEmail = async (data: FormDataState): Promise<boolean> => {
     // Upload images to Cloudinary
     let logoUrl = '';
     let photoUrls: string[] = [];
-    let serviceImageUrls: { [key: number]: string } = {};
 
     // Upload logo
     if (data.logo) {
@@ -25,57 +24,60 @@ export const sendFormEmail = async (data: FormDataState): Promise<boolean> => {
       photoUrls = await uploadMultipleImages(data.photos);
     }
 
-    // Upload service images
-    for (let i = 0; i < data.services.length; i++) {
-      if (data.services[i].image) {
-        console.log(`📸 Uploading service image ${i + 1}...`);
-        const url = await uploadToCloudinary(data.services[i].image!);
-        if (url) serviceImageUrls[i] = url;
-      }
-    }
-
     console.log('✅ All images uploaded!');
 
-    // Prepare services list with image links
+    // Prepare shared data
     const servicesList = data.services
       .filter(s => s.text)
-      .map((s, i) => {
-        const imageLink = serviceImageUrls[i] 
-          ? `\n   🖼️ Εικόνα: ${serviceImageUrls[i]}`
-          : '';
-        return `${i + 1}. ${s.text}${imageLink}`;
-      })
+      .map((s, i) => `${i + 1}. ${s.text}`)
       .join('\n') || 'Δεν προστέθηκαν στοιχεία';
 
-    // Prepare social links
     const socialsList = data.socialLinks
       .filter(l => l)
       .join('\n') || 'Δεν προστέθηκαν social links';
 
-    // Prepare moods
     const moodsList = data.moods.join(', ') || 'Δεν επιλέχθηκαν';
-
-    // Prepare contact methods
     const contactMethodsList = data.contactMethods.join(', ') || 'Δεν επιλέχθηκαν';
 
-    // Count files
-    let fileCount = 0;
-    if (data.logo) fileCount++;
-    fileCount += data.photos.length;
-    fileCount += data.services.filter(s => s.image).length;
-
-    // Prepare photos list with links
     const photosInfo = photoUrls.length > 0
       ? `✅ ${photoUrls.length} φωτογραφίες:\n${photoUrls.map((url, i) => `   ${i + 1}. ${url}`).join('\n')}`
       : '❌ Δεν ανέβηκαν';
 
-    // Prepare logo info
     const logoInfo = logoUrl 
       ? `✅ Ανέβηκε:\n   ${logoUrl}`
       : '❌ Δεν ανέβηκε';
 
-    // Prepare email parameters
-    const templateParams = {
+    let fileCount = 0;
+    if (data.logo) fileCount++;
+    fileCount += data.photos.length;
+
+    const submissionTime = new Date().toLocaleString('el-GR', { 
+      dateStyle: 'full', 
+      timeStyle: 'short' 
+    });
+
+    // EMAIL 1: To Admin (you)
+    const adminParams = {
+      name: data.name,
+      email: data.email,
+      phone: data.phone || 'Δεν δόθηκε',
+      description: data.description,
+      additionalComments: data.additionalComments || 'Δεν δόθηκαν επιπλέον σχόλια',
+      gdprConsentText: data.gdprConsent ? '✅ Ναι' : '❌ Όχι',
+      presentationType: data.presentationType,
+      services: servicesList,
+      goal: data.goal,
+      contactMethods: contactMethodsList,
+      moods: moodsList,
+      socialLinks: socialsList,
+      logo: logoInfo,
+      photos: photosInfo,
+      fileCount: `${fileCount} / 15`,
+      submission_time: submissionTime
+    };
+
+    // EMAIL 2: To Customer
+    const customerParams = {
       name: data.name,
       email: data.email,
       phone: data.phone || 'Δεν δόθηκε',
@@ -86,25 +88,34 @@ export const sendFormEmail = async (data: FormDataState): Promise<boolean> => {
       contactMethods: contactMethodsList,
       moods: moodsList,
       socialLinks: socialsList,
-      logo: logoInfo,
-      photos: photosInfo,
-      fileCount: `${fileCount} / 15`,
-      submission_time: new Date().toLocaleString('el-GR', { 
-        dateStyle: 'full', 
-        timeStyle: 'short' 
-      })
+      logoStatus: data.logo ? '✅ Ανέβηκε' : '❌ Δεν ανέβηκε',
+      photoCount: data.photos.length > 0 ? `✅ ${data.photos.length} φωτογραφίες` : '❌ Δεν ανέβηκαν',
+      additionalComments: data.additionalComments || 'Δεν δόθηκαν',
+      submission_time: submissionTime
     };
 
-    // Send email
-    console.log('📧 Sending email...');
-    const response = await emailjs.send(
+    // Send admin email
+    console.log('📧 Sending admin email...');
+    await emailjs.send(
       EMAIL_CONFIG.serviceId,
       EMAIL_CONFIG.templateId,
-      templateParams,
+      adminParams,
       EMAIL_CONFIG.publicKey
     );
 
-    console.log('✅ Email sent successfully:', response);
+// Send customer confirmation
+console.log('📧 Sending customer confirmation...');
+await emailjs.send(
+  EMAIL_CONFIG.serviceId,
+  'template_79xgqun',
+  {
+    ...customerParams,
+    to_email: data.email  // Dynamic recipient
+  },
+  EMAIL_CONFIG.publicKey
+);
+
+    console.log('✅ Both emails sent successfully!');
     return true;
 
   } catch (error) {

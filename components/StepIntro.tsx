@@ -7,7 +7,7 @@ interface Props {
 
 const StepIntro: React.FC<Props> = ({ onStart }) => {
   return (
-    <div className="glass rounded-[48px] p-8 md:p-16 text-center animate-fadeIn relative z-10">
+    <div className="glass rounded-[22px] p-8 md:p-16 text-center animate-fadeIn relative z-10">
       <div className="mb-10 flex justify-center">
         <img 
           src="/webora-logo.png" 
@@ -27,7 +27,7 @@ const StepIntro: React.FC<Props> = ({ onStart }) => {
       <div className="flex flex-col items-center gap-6">
         <button 
           onClick={onStart}
-          className="group relative flex items-center justify-center gap-4 bg-white text-black px-12 py-6 rounded-full text-xl font-bold hover:bg-gray-100 transition-all duration-300 shadow-2xl hover:scale-105 active:scale-95"
+          className="group relative flex items-center justify-center gap-3 bg-white text-black px-8 md:px-12 py-5 md:py-6 rounded-full text-lg md:text-xl font-bold hover:bg-gray-100 transition-all duration-300 shadow-2xl hover:scale-105 active:scale-95"
         >
           Δοκιμάστε δωρεάν
           <span className="bg-blue-600 text-white rounded-full p-1.5 group-hover:translate-x-1 transition-transform shadow-inner">

@@ -37,7 +37,7 @@ const ThankYou: React.FC = () => {
   }, []);
 
   return (
-    <div className="glass rounded-[48px] p-8 md:p-12 text-center min-h-[400px] flex flex-col items-center justify-center animate-fadeIn relative">
+    <div className="glass rounded-[22px] p-8 md:p-12 text-center min-h-[400px] flex flex-col items-center justify-center animate-fadeIn relative">
       {!showDialog ? (
         <>
           <div className="relative w-24 h-24 mx-auto mb-8">

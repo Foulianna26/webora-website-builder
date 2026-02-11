@@ -56,8 +56,13 @@ const Wizard: React.FC<Props> = ({ initialData, onFinish }) => {
       const file = files[i];
       
       try {
-        const compressedBase64 = await compressImage(file);
-        
+const compressedBase64 = field === 'logo' 
+? await new Promise<string>((resolve) => {
+    const reader = new FileReader();
+    reader.onload = (e) => resolve(e.target?.result as string);
+    reader.readAsDataURL(file);
+  })
+: await compressImage(file);
         processedFiles.push({
           name: file.name,
           size: file.size,
@@ -246,8 +251,11 @@ const Wizard: React.FC<Props> = ({ initialData, onFinish }) => {
                   <Icons.Upload />
                   <span className="text-sm text-gray-500 font-medium">{data.logo ? data.logo.name : 'Επιλέξτε αρχείο'}</span>
                 </label>
-                <p className="text-xs text-cyan-400 font-medium">
-                  Αν δεν έχετε λογότυπο, θα δημιουργήσουμε κάτι όμορφο βασισμένο στο όνομά σας.
+                <p className="text-xs text-gray-400">
+                    Προτεινόμενα: PNG/SVG, έως 500KB, διαφανές φόντο
+                </p>
+                <p className="text-xs text-cyan-400 font-medium mt-2">
+                     Αν δεν έχετε λογότυπο, θα δημιουργήσουμε κάτι όμορφο βασισμένο στο όνομά σας.
                 </p>
               </div>
               <div className="space-y-3">
@@ -257,6 +265,12 @@ const Wizard: React.FC<Props> = ({ initialData, onFinish }) => {
                   <Icons.Upload />
                   <span className="text-sm text-gray-500 font-medium">{data.photos.length > 0 ? `${data.photos.length} αρχεία` : 'Επιλέξτε αρχεία'}</span>
                 </label>
+                <p className="text-xs text-gray-400">
+                    Προτεινόμενα: PNG/JPG, έως 1MB
+                </p>
+                <p className="text-xs text-cyan-400 font-medium mt-2">
+                     Αν δεν έχετε φωτογραφίες, θα διαλέξουμε εμείς μερικές από δωρεάν βιβλιοθήκες, βασισμένες στίς υπηρεσίες σας.
+                </p>
               </div>
             </div>
             
@@ -443,8 +457,7 @@ const Wizard: React.FC<Props> = ({ initialData, onFinish }) => {
           </div>
         )}
       </div>
-
-      <div className="px-10 py-8 bg-black/20 border-t border-white/5 flex justify-between items-center">
+      <div className="px-6 md:px-10 py-6 md:py-8 bg-black/20 border-t border-white/5 flex flex-col md:flex-row gap-4 md:gap-0 justify-between items-center">
         <button 
           onClick={prevStep}
           disabled={step === 1}
@@ -456,7 +469,7 @@ const Wizard: React.FC<Props> = ({ initialData, onFinish }) => {
         <button 
           onClick={nextStep}
           disabled={!isStepValid()}
-          className={`flex items-center gap-3 px-10 py-4 rounded-full font-bold transition-all shadow-xl hover:scale-105 active:scale-95 disabled:grayscale disabled:opacity-50 ${step === totalSteps ? 'bg-gradient-to-r from-blue-600 to-cyan-500 text-white glow-blue' : 'bg-white text-black'}`}
+          className={`w-full md:w-auto flex items-center justify-center gap-2 md:gap-3 px-8 md:px-10 py-4 rounded-full text-sm md:text-base font-bold transition-all shadow-xl hover:scale-105 active:scale-95 disabled:grayscale disabled:opacity-50 ${step === totalSteps ? 'bg-gradient-to-r from-blue-600 to-cyan-500 text-white glow-blue' : 'bg-white text-black'}`}
         >
           {step === totalSteps ? "Δημιούργησε το website μου" : "Επόμενο"}
           {step !== totalSteps && <Icons.ChevronRight />}
